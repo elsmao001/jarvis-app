@@ -1,0 +1,13 @@
+{
+  "name": "jarvis-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node worker.mjs",
+    "setup": "node setup.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "web-push": "^3.6.7"
+  }
+}

@@ -1,0 +1,4 @@
+node_modules/
+worker/.env
+.DS_Store
+worker/logs/
