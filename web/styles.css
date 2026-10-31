@@ -51,6 +51,20 @@ h2{font:600 11px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;c
 .today b{display:block;font:800 24px/1 var(--f-display);font-stretch:112%;font-variant-numeric:tabular-nums}
 .today span{font-size:12px;color:var(--muted)}
 .today .hl b{color:var(--amber)}
+.today small{display:block;margin-top:4px;font:500 11px var(--f-mono);color:var(--muted)}
+.today .tap{cursor:pointer}
+
+/* Mail vs appel (7 jours) */
+.mix{background:var(--panel);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.mix .lg{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.mix .lg b{font:600 12px var(--f-mono);color:var(--fg)}
+.mix .split{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--ink)}
+.mix .split .m{background:var(--amber)}
+.mix .split .c{background:var(--info)}
+.mix .lg .dm::before,.mix .lg .dc::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
+.mix .lg .dm::before{background:var(--amber)}.mix .lg .dc::before{background:var(--info)}
+.mix p{margin:0;font-size:12px}
+.mix p.warn{color:var(--warn)}.mix p.ok{color:var(--ok)}
 
 /* Carte post à valider */
 .post{background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden}

@@ -1,5 +1,5 @@
 // Service worker : notifications push et ouverture de l'app sur le bon onglet.
-const SHELL = 'jarvis-v1';
+const SHELL = 'jarvis-v2';
 const FILES = ['./', 'index.html', 'styles.css', 'app.js', 'config.js', 'manifest.webmanifest', 'icons/icon-192.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(SHELL).then(c => c.addAll(FILES))); self.skipWaiting(); });

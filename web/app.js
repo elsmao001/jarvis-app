@@ -11,7 +11,9 @@ const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: TZ }); //
 const fmtDay = iso => new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 const fmtTime = iso => new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: TZ });
 const fmtShort = iso => new Date(iso).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', timeZone: TZ });
-const AGENT_NAMES = { prospection: 'Prospection', visuels: 'Visuels', recap: 'Récap du soir', jarvis: 'Jarvis' };
+const shiftDay = (iso, n) => { const d = new Date(iso + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
+const AGENT_NAMES ={ prospection: 'Prospection', visuels: 'Visuels', recap: 'Récap du soir', jarvis: 'Jarvis' };
 
 const S = { posts: [], prospects: [], calls: [], runs: [], alerts: [], messages: [], urls: {}, agent: 'prospection', heartbeat: null };
 
@@ -83,10 +85,22 @@ function render() {
   $('#dateTitle').textContent = fmtDay(t).replace(/^./, c => c.toUpperCase());
   const pending = S.posts.filter(p => ['pending', 'approved', 'publishing', 'failed'].includes(p.status));
   const toValidate = S.posts.filter(p => p.status === 'pending' || p.status === 'failed').length;
-  const mailsToday = S.prospects.filter(p => p.sent_on === t).length;
   const callsLeft = S.calls.filter(c => !c.result).length;
   const replies = S.prospects.filter(p => p.replied_at).length;
-  $('#k-posts').textContent = toValidate; $('#k-mails').textContent = mailsToday; $('#k-calls').textContent = callsLeft;
+  // Mail vs appel : même mesure des deux côtés (prospects ajoutés par l'agent), aujourd'hui et sur 7 jours.
+  const d7 = shiftDay(t, -6);
+  const callDay = c => { const [d, m, y] = String(c.added_on || '').split('/'); return y ? `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}` : ''; };
+  const mailsToday = S.prospects.filter(p => p.sent_on === t).length;
+  const mails7 = S.prospects.filter(p => p.sent_on >= d7 && p.sent_on <= t).length;
+  const callsToday = S.calls.filter(c => callDay(c) === t).length;
+  const calls7 = S.calls.filter(c => { const d = callDay(c); return d >= d7 && d <= t; }).length;
+  $('#k-posts').textContent = toValidate; $('#k-mails').textContent = mailsToday; $('#k-calls').textContent = callsToday;
+  $('#k-mails7').textContent = `7 j : ${mails7}`;
+  $('#k-calls7').textContent = `7 j : ${calls7}`;
+  const tot7 = mails7 + calls7, pm = tot7 ? Math.round((mails7 / tot7) * 100) : 0;
+  $('#mix').innerHTML = tot7 ? `<div class="lg"><span class="dm">Mails <b>${mails7}</b> · ${pm} %</span><span class="dc">Appels <b>${calls7}</b> · ${100 - pm} %</span></div>
+    <div class="split"><span class="m" style="width:${pm}%"></span><span class="c" style="width:${100 - pm}%"></span></div>
+    <p class="${mails7 >= calls7 ? 'ok' : 'warn'}">${mails7 >= calls7 ? 'Les mails passent bien en premier sur 7 jours.' : `Plus d'appels que de mails sur 7 jours : le mail doit rester prioritaire.`}</p>` : '<p class="sub" style="margin:0">Aucun mail ni appel ces 7 derniers jours.</p>';
   badge('posts', toValidate); badge('calls', callsLeft); badge('recap', S.alerts.length);
   badge('mails', S.prospects.filter(p => p.replied_at && Date.now() - new Date(p.replied_at) < 864e5 * 3).length);
 
